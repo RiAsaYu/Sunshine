@@ -1,9 +1,11 @@
 package com.riasayu.gosuke.sunshine;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.text.format.Time;
 import android.util.Log;
@@ -16,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -54,7 +57,7 @@ public class ForecastFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-        final String [] forecasetArray ={
+        final String [] forecasetArray ={};/*={
                 "Today - Sunny - 98/63",
                 "Tomorrow -Foggy - 70/40",
                 "Weds - Cloudy - 72/63",
@@ -62,7 +65,7 @@ public class ForecastFragment extends Fragment {
                 "Fri -Heavy Rain -65/56",
                 "Sat - HELP TRAPPED IN WEATHERESTATION - 60/51",
                 "Sun -Sunny - 80/68"
-        };
+        };*/
         List<String> weekForecast = new ArrayList<String>(Arrays.asList(forecasetArray));
 
         mForecastAdapter = new ArrayAdapter(getActivity(), R.layout.list_item_forecast, R.id.list_item_forecast_textview, weekForecast);
@@ -72,7 +75,7 @@ public class ForecastFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 // ˆÈ‰º3’Ê‚è‚Ì‚Ç‚ê‚Å‚à“®‚­
-                String forecast = (String)mForecastAdapter.getItem(position);
+                String forecast = (String) mForecastAdapter.getItem(position);
                 //String forecast = (String )parent.getItemAtPosition(position);
                 //String forecast = (String) ((TextView)view).getText().toString();
 
@@ -91,6 +94,12 @@ public class ForecastFragment extends Fragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        weatherUpdate();
+    }
+
+    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
         inflater.inflate(R.menu.forecastfragment, menu);
     }
@@ -99,9 +108,39 @@ public class ForecastFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item){
         int id = item.getItemId();
         if(id == R.id.action_refresh){
-            new FetchWeatherTask().execute("94043");
+            weatherUpdate();
+        }
+        else if(id == R.id.action_location){
+            showPreferredLocationOnMap();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void weatherUpdate(){
+        String location = PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(getString(R.string.pref_location_key), "");
+        new FetchWeatherTask().execute(location);
+    }
+    private void showPreferredLocationOnMap(){
+        String location = PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(getString(R.string.pref_location_key), "");
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("geo:0,0?q=" + location));
+        if(intent.resolveActivity(getActivity().getPackageManager()) != null) {
+            startActivity(intent);
+        }
+        else{
+            Toast.makeText(getActivity(), "No map app!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private boolean isTemperatureUnitMetric(){
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        if(sharedPreferences == null) return true;
+
+        String unit = sharedPreferences.getString(getString(R.string.pref_temperature_key), "");
+        Log.d("TempUnit", unit + "," + getString(R.string.pref_temperature_metric_value));
+        if(unit.equals(getString(R.string.pref_temperature_metric_value))){
+            return true;
+        }
+        return false;
     }
 
     private class FetchWeatherTask extends AsyncTask<String, Void, String[]>{
@@ -201,10 +240,10 @@ public class ForecastFragment extends Fragment {
         protected void onPostExecute(String[] result) {
             if(result != null){
                 mForecastAdapter.clear();
-                mForecastAdapter.addAll(result);
-//                for(String dayForecstStr : result){
-//                    mForecastAdapter.add(dayForecstStr);
-//                }
+     //           mForecastAdapter.addAll(result);
+                for(String dayForecstStr : result){
+                    mForecastAdapter.add(dayForecstStr);
+                }
             }
         }
 
@@ -297,12 +336,20 @@ public class ForecastFragment extends Fragment {
                 double high = temperatureObject.getDouble(OWM_MAX);
                 double low = temperatureObject.getDouble(OWM_MIN);
 
+                if(isTemperatureUnitMetric()==false){
+                    high = convertCelsiusToFahrenheit(high);
+                    low = convertCelsiusToFahrenheit(low);
+                }
+
                 highAndLow = formatHighLows(high, low);
                 resultStrs[i] = day + " - " + description + " - " + highAndLow;
             }
 
             return resultStrs;
 
+        }
+        private double convertCelsiusToFahrenheit(double celsius){
+            return (celsius*9)/5+32;
         }
     }
 }
