@@ -41,7 +41,7 @@ public class TestDb extends AndroidTestCase {
 
     @Override
     protected void tearDown() throws Exception {
-        deleteTheDatabase();
+  //      deleteTheDatabase();
     }
 
     /*

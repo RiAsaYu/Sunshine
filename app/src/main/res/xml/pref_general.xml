@@ -11,7 +11,7 @@
     <EditTextPreference
         android:key="@string/pref_location_key"
         android:title="@string/pref_location_label"
-        android:defaultValue="@string/pref_default_location_zipcode"
+        android:defaultValue="@string/pref_location_default"
         android:selectAllOnFocus="true"
         android:inputType="textCapWords"
         android:capitalize="words"
@@ -22,9 +22,9 @@
          dismiss it. @nullを設定することでOK/Cancelボタンを消している-->
     <!-- NOTE: ListPreference's summary should be set to its value by the activity code. -->
     <ListPreference
-        android:key="@string/pref_temperature_key"
+        android:key="@string/pref_units_key"
         android:title="@string/pref_temperature_label"
-        android:defaultValue="@string/pref_temperature_metric_value"
+        android:defaultValue="@string/pref_units_metric"
         android:entries="@array/pref_temperature_units_titles"
         android:entryValues="@array/pref_temperature_units_values"
         android:negativeButtonText="@null"
