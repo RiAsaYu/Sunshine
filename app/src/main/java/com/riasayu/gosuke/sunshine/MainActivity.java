@@ -10,40 +10,59 @@ import android.view.MenuItem;
 
 public class MainActivity extends ActionBarActivity {
 
+    private final String LOG_TAG = MainActivity.class.getSimpleName();
+    private final String FORECASTFRAGMENT_TAG = "FFTAG";
+    private  String mLocation;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d("MainActivity", "onCreate()");
+        Log.d(LOG_TAG, "onCreate()");
+        mLocation = Utility.getPreferredLocation(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        if(savedInstanceState == null){
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.container, new ForecastFragment(), FORECASTFRAGMENT_TAG)
+                    .commit();
+        }
     }
 
     @Override
     protected void onStart() {
-        Log.d("MainActivity", "onStart()");
+        Log.d(LOG_TAG, "onStart()");
         super.onStart();
     }
 
     @Override
     protected void onPause() {
-        Log.d("MainActivity", "onPause()");
+        Log.d(LOG_TAG, "onPause()");
         super.onPause();
     }
 
     @Override
     protected void onStop() {
-        Log.d("MainActivity", "onStop()");
+        Log.d(LOG_TAG, "onStop()");
         super.onStop();
     }
 
     @Override
     protected void onResume() {
-        Log.d("MainActivity", "onResume()");
+        Log.d(LOG_TAG, "onResume()");
         super.onResume();
+        String location = Utility.getPreferredLocation(this);
+        // update the location in our second pane using the fragment manager
+        if(location != null && !location.equals(mLocation)){
+            ForecastFragment ff = (ForecastFragment)getSupportFragmentManager().findFragmentByTag(FORECASTFRAGMENT_TAG);
+            if(null != ff){
+                ff.onLocationChanged();
+            }
+            mLocation = location;
+        }
     }
 
     @Override
     protected void onDestroy() {
-        Log.d("MainActivity", "onDestroy()");
+        Log.d(LOG_TAG, "onDestroy()");
         super.onDestroy();
     }
 
