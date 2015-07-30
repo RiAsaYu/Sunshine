@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -27,6 +28,8 @@ import com.riasayu.gosuke.sunshine.data.WeatherContract;
  * A placeholder fragment containing a simple view.
  */
 public class ForecastFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
+
+    private static final String LOG_TAG = ForecastFragment.class.getSimpleName();
 
     private static final int FORECAST_LOADER = 0;
 
@@ -73,6 +76,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
     @Override
     public void onCreate(Bundle savedInstanceState){
+        Log.d(LOG_TAG, "onCreate");
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true); // onCreateView�ɒu���Ă��L���������BonCreate��onCreateView�̍��͉��H
     }
@@ -80,6 +84,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Log.d(LOG_TAG, "onCreateView");
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
         mForecastAdapter = new ForecastAdapter(getActivity(), null, 0);
@@ -87,7 +92,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         ListView forecastListView = (ListView)rootView.findViewById(R.id.listview_forecast);
         forecastListView.setAdapter(mForecastAdapter);
 
-        forecastListView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+        forecastListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             /**
              * Callback method to be invoked when an item in this AdapterView has
              * been clicked.
@@ -103,8 +108,8 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
              */
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                Cursor cursor = (Cursor)adapterView.getItemAtPosition(position);
-                if(cursor != null){
+                Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
+                if (cursor != null) {
                     String locationSetting = Utility.getPreferredLocation(getActivity());
                     Intent intent = new Intent(getActivity(), DetailActivity.class)
                             .setData(WeatherContract.WeatherEntry.buildWeatherLocationWithDate(locationSetting, cursor.getLong(COL_WEATHER_DATE)
@@ -131,12 +136,14 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
      */
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
+        Log.d(LOG_TAG, "onActivityCreated");
         getLoaderManager().initLoader(FORECAST_LOADER, null, this);
         super.onActivityCreated(savedInstanceState);
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        Log.d(LOG_TAG, "onCreateLoader");
         String locationSetting = Utility.getPreferredLocation(getActivity());
         String sortOrder = WeatherContract.WeatherEntry.COLUMN_DATE + " ASC";
         Uri weatherForLocationUri = WeatherContract.WeatherEntry.buildWeatherLocationWithStartDate(locationSetting, System.currentTimeMillis());
