@@ -188,8 +188,8 @@ public class WeatherProvider extends ContentProvider {
                 retCursor = mOpenHelper.getReadableDatabase().query(
                         WeatherContract.WeatherEntry.TABLE_NAME,
                         projection,
-                        selection,
-                        selectionArgs,
+                        selection, // 検索条件
+                        selectionArgs, // 検索条件のパラメータ(？で指定)を置き換える値
                         null,
                         null,
                         sortOrder
