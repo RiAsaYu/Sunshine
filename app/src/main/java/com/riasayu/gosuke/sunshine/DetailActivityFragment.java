@@ -125,7 +125,7 @@ public class DetailActivityFragment extends Fragment implements LoaderCallbacks<
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         Log.d(LOG_TAG, "In onCreateLoader");
         Intent intent = getActivity().getIntent();
-        if(intent == null){
+        if(intent == null || intent.getData() == null){
             return null;
         }
 
@@ -147,8 +147,7 @@ public class DetailActivityFragment extends Fragment implements LoaderCallbacks<
         if(data == null || !data.moveToFirst()){return;}
 
         int weatherId = data.getInt(COL_WEATHER_CONDITION_ID);
-        // This is a place holder at this moment.
-        mIconView.setImageResource(R.mipmap.ic_launcher);
+        mIconView.setImageResource(Utility.getArtResourceForWeatherCondition(weatherId));
 
         String friendlyDateText = Utility.getDayName(getActivity(), data.getLong(COL_WEATHER_DATE));
         String dateText = Utility.getFormattedMonthDay(getActivity(), data.getLong(COL_WEATHER_DATE));
