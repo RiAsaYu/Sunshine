@@ -1,5 +1,6 @@
 package com.riasayu.gosuke.sunshine;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -66,6 +67,20 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
     ForecastAdapter mForecastAdapter;
 
+    /**
+     * A callback interface that all activities containing this fragment must
+     * implement. This mechanism allows activities to be notified of item
+     * selections.
+     * Fragmentが固有のActivityに依存するのを防ぐため、Fratmentを使うActivityの方にこのFragmentへのCallBackを実装する。
+     */
+    public interface Callback {
+        /**
+        * DetailFragmentCallback for when an item has been selected.
+         * DetailFragmentにActivity経由で通知するためのCallback
+        */
+        public void onItemSelected(Uri dateUri);
+    }
+
     // since we read the location when we crete the loader, all we need to do is restart thisgs
     void onLocationChanged(){
         weatherUpdate();
@@ -97,10 +112,11 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
                 Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
                 if (cursor != null) {
                     String locationSetting = Utility.getPreferredLocation(getActivity());
-                    Intent intent = new Intent(getActivity(), DetailActivity.class)
-                            .setData(WeatherContract.WeatherEntry.buildWeatherLocationWithDate(locationSetting, cursor.getLong(COL_WEATHER_DATE)
-                            ));
-                    startActivity(intent);
+                    Activity activity = getActivity();
+                    if(activity instanceof Callback == true) { // ActivityがCallbackを実装しているか調べる。
+                        ((Callback) activity)
+                                .onItemSelected(WeatherContract.WeatherEntry.buildWeatherLocationWithDate(locationSetting, cursor.getLong(COL_WEATHER_DATE)));
+                    }
                 }
             }
         });

@@ -2,6 +2,7 @@ package com.riasayu.gosuke.sunshine;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
@@ -28,10 +29,13 @@ import com.riasayu.gosuke.sunshine.data.WeatherContract.WeatherEntry;
 public class DetailActivityFragment extends Fragment implements LoaderCallbacks<Cursor> {
 
     private static final String LOG_TAG = DetailActivityFragment.class.getSimpleName();
+    static final String DETAIL_URI = "URI";
+
     private static final String FORECAST_SHARE_HASHTAG = "#SunshineApp";
 
     private ShareActionProvider mShareActionProvider;
     private String mForecast;
+    private Uri mUri;
 
     private static final int DETAIL_LOADER = 0;
 
@@ -90,7 +94,22 @@ public class DetailActivityFragment extends Fragment implements LoaderCallbacks<
         mHumidityView = (TextView)rootView.findViewById(R.id.detail_humidity_textView);
         mPressureView = (TextView)rootView.findViewById(R.id.detail_pressure_textView);
         mWindView = (TextView)rootView.findViewById(R.id.detail_wind_textView);
+
+        Bundle arguments = getArguments();
+        if(arguments != null){
+            mUri = arguments.getParcelable(DetailActivityFragment.DETAIL_URI);
+        }
         return rootView;
+    }
+
+    void onLocationChanged(String newLocation){
+        Uri uri = mUri;
+        if(null != uri){
+            long date = WeatherContract.WeatherEntry.getDateFromUri(uri);
+            Uri updateUri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(newLocation, date);
+            mUri = updateUri;
+            getLoaderManager().restartLoader(DETAIL_LOADER, null, this);
+        }
     }
 
     @Override
@@ -124,21 +143,19 @@ public class DetailActivityFragment extends Fragment implements LoaderCallbacks<
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         Log.d(LOG_TAG, "In onCreateLoader");
-        Intent intent = getActivity().getIntent();
-        if(intent == null || intent.getData() == null){
-            return null;
+        if(null != mUri){
+            // Now create and return a Cursorloader that will take care of
+            // creating a Cursor for the data being displayed.
+            return new CursorLoader(
+                    getActivity(),
+                    mUri,
+                    DETAIL_COLUMS,
+                    null,
+                    null,
+                    null
+            );
         }
-
-        // Now create and return a CursorLoader that will take care of
-        // creating a Cursor for the data being displayed.
-        return new CursorLoader(
-                getActivity(),
-                intent.getData(),
-                DETAIL_COLUMS,
-                null,
-                null,
-                null
-        );
+        return null;
     }
 
     @Override
