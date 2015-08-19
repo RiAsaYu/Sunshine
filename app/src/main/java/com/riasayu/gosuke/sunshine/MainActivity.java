@@ -65,6 +65,7 @@ public class MainActivity extends ActionBarActivity implements ForecastFragment.
             if(null != ff){
                 ff.onLocationChanged();
             }
+            // DetailActivityFragmentはTablet用のsw600dpレイアウトが選択されている場合のみこのActivityに動的に追加されるので、スマホ用レイアウトの場合は存在しない。
             DetailActivityFragment df = (DetailActivityFragment)getSupportFragmentManager().findFragmentByTag(DETAILFRAGMENT_TAG);
             if(null != df){
                 df.onLocationChanged(location);

@@ -71,7 +71,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
      * A callback interface that all activities containing this fragment must
      * implement. This mechanism allows activities to be notified of item
      * selections.
-     * Fragmentが固有のActivityに依存するのを防ぐため、Fratmentを使うActivityの方にこのFragmentへのCallBackを実装する。
+     * Fragmentが固有のActivityに依存するのを防ぐため、Fragmentを使うActivityの方にこのFragmentへのCallBackを実装する。
      */
     public interface Callback {
         /**
